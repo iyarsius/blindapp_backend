@@ -1,4 +1,9 @@
 import { Hono } from 'hono'
-const router = new Hono()
+import { type UnlinkVariables } from '../middleware/unlink.js'
+
+const router = new Hono<{ Variables: UnlinkVariables }>()
+
 // TODO: POST /deposit
+// router.post('/', unlinkMiddleware, async (c) => { ... })
+
 export default router
