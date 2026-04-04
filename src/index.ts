@@ -2,11 +2,17 @@ import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
 import 'dotenv/config'
 
+import initRouter from './routes/init.js'
+import faucetRouter from './routes/faucet.js'
+import walletRouter from './routes/wallet.js'
+
 const app = new Hono()
 
 app.get('/', (c) => c.json({ status: 'ok' }))
 
-// TODO: monter les routes (wallet, deposit, transfer, withdraw)
+app.route('/init', initRouter)
+app.route('/faucet', faucetRouter)
+app.route('/balance', walletRouter)
 
 serve({ fetch: app.fetch, port: Number(process.env.PORT) || 3000 }, (info) => {
   console.log(`Backend running on http://localhost:${info.port}`)
