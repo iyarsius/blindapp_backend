@@ -4,7 +4,8 @@ import { privateKeyToAccount } from 'viem/accounts'
 import { baseSepolia } from 'viem/chains'
 
 export function createUnlinkClient(mnemonic: string, evmPrivateKey: string) {
-  const evmAccount = privateKeyToAccount(evmPrivateKey as `0x${string}`)
+  const normalizedKey = (evmPrivateKey.startsWith('0x') ? evmPrivateKey : `0x${evmPrivateKey}`) as `0x${string}`
+  const evmAccount = privateKeyToAccount(normalizedKey)
   const walletClient = createWalletClient({
     account: evmAccount,
     chain: baseSepolia,

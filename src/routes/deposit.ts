@@ -1,9 +1,32 @@
 import { Hono } from 'hono'
-import { type UnlinkVariables } from '../middleware/unlink.js'
+import { unlinkMiddleware, type UnlinkVariables } from '../middleware/unlink.js'
+import { createPublicClient, http } from 'viem'
+import { baseSepolia } from 'viem/chains'
+
+const TOKEN = '0x7501de8ea37a21e20e6e65947d2ecab0e9f061a7'
 
 const router = new Hono<{ Variables: UnlinkVariables }>()
 
-// TODO: POST /deposit
-// router.post('/', unlinkMiddleware, async (c) => { ... })
+router.post('/', unlinkMiddleware, async (c) => {
+  const { amount, token = TOKEN } = await c.req.json()
+  const unlink = c.get('unlink')
+
+  const publicClient = createPublicClient({
+    chain: baseSepolia,
+    transport: http(process.env.RPC_URL),
+  })
+
+  const approval = await unlink.ensureErc20Approval({ token, amount })
+
+  if (approval.status === 'submitted') {
+    await publicClient.waitForTransactionReceipt({
+      hash: approval.txHash as `0x${string}`,
+    })
+  }
+
+  const result = await unlink.deposit({ token, amount })
+  const confirmed = await unlink.pollTransactionStatus(result.txId)
+  return c.json(confirmed)
+})
 
 export default router

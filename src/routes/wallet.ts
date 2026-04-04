@@ -22,7 +22,8 @@ router.post('/unlink', unlinkMiddleware, async (c) => {
 
 router.post('/public', async (c) => {
   const { evmPrivateKey, token = TOKEN } = await c.req.json()
-  const account = privateKeyToAccount(evmPrivateKey as `0x${string}`)
+  const normalizedKey = (evmPrivateKey.startsWith('0x') ? evmPrivateKey : `0x${evmPrivateKey}`) as `0x${string}`
+  const account = privateKeyToAccount(normalizedKey)
 
   const publicClient = createPublicClient({
     chain: baseSepolia,
